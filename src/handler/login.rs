@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
+use crate::data::credential::generate_token;
 use crate::data::error::Error;
-use crate::data::generate_token;
 use crate::entity::user;
 use crate::utils::captcha::{verify_captcha, Captcha};
 use crate::utils::encryption::salt_password;
@@ -14,8 +14,6 @@ use axum::Json;
 use axum_extra::headers::authorization::Bearer;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
-use rand::distributions::Alphanumeric;
-use rand::Rng;
 use redis::Commands;
 use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
 use serde::{Deserialize, Serialize};

@@ -17,6 +17,9 @@ pub enum Error {
     IncorrectEmailOrPassword,
     Unauthorized,
     RegisteredEmail,
+    InvalidToken,
+    ExpiredToken,
+    MissingScope,
 }
 
 impl IntoResponse for Error {
@@ -31,6 +34,9 @@ impl IntoResponse for Error {
             Error::IncorrectEmailOrPassword => StatusCode::UNAUTHORIZED,
             Error::Unauthorized => StatusCode::UNAUTHORIZED,
             Error::RegisteredEmail => StatusCode::CONFLICT,
+            Error::InvalidToken => StatusCode::BAD_REQUEST,
+            Error::ExpiredToken => StatusCode::UNAUTHORIZED,
+            Error::MissingScope => StatusCode::FORBIDDEN,
         };
 
         (

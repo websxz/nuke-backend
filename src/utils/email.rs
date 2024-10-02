@@ -1,7 +1,5 @@
 use crate::data::error::Error;
 use lazy_static::lazy_static;
-use lettre::transport::smtp::authentication::{Credentials, Mechanism};
-use lettre::transport::smtp::response::{Code, Response};
 use lettre::transport::smtp::PoolConfig;
 use lettre::{Message, SmtpTransport, Transport};
 use std::env;
