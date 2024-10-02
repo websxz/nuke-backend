@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>验证邮件</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .header img {
+            width: 100px;
+        }
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+        .content p {
+            font-size: 16px;
+            color: #333333;
+        }
+        .code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff0000;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 10px 0;
+            font-size: 12px;
+            color: #777777;
+        }
+        .verify-link {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 20px 0;
+            background-color: #007bff;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<!-- Komm, süsser Tod -->
+<div class="container">
+    <div class="header">
+        <img src="https://lain.websxz.org/img/logo.png" alt="Logo">
+    </div>
+    <div class="content">
+        <p>你好，</p>
+        <p>感谢使用WebSxz，请点击以下链接完成验证：</p>
+        <a href="{{ verification_link }}" class="verify-link">验证邮箱</a>
+        <p>如果链接无法点击，请将以下网址复制到浏览器地址栏中访问：</p>
+        <p>{{ verification_link }}</p>
+        <p>验证码30分钟内有效。如果你没有请求此邮件，请忽略。</p>
+    </div>
+    <div class="footer">
+        <p>此邮件由系统自动发送，请勿回复。</p>
+    </div>
+</div>
+</body>
+</html>
