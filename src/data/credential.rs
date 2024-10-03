@@ -108,7 +108,7 @@ where
                     }
                 })?;
 
-        if S != scopes(token_data.claims.scopes.as_slice()) {
+        if S != S & scopes(token_data.claims.scopes.as_slice()) {
             return Err(Error::MissingScope);
         }
 
