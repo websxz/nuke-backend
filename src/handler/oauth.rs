@@ -39,7 +39,7 @@ pub enum ResponseType {
 pub async fn oauth(
     state: State<Arc<AppState>>,
     Query(params): Query<OAuthParams>,
-    claims: Claims,
+    claims: Claims<0>,
 ) -> Result<Json<String>, Error> {
     let OAuthParams {
         scopes,

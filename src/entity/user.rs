@@ -13,9 +13,9 @@ pub struct Model {
     pub salted_password: String,
     pub salt: String,
     #[sea_orm(created_at)]
-    pub created_at: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
     #[sea_orm(updated_at)]
-    pub updated_at: Option<NaiveDateTime>,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

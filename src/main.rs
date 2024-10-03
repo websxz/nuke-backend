@@ -1,8 +1,9 @@
-use axum::routing::{get, post};
+use axum::routing::{get, post, put};
 use axum::Router;
 use dotenv::dotenv;
 use sea_orm::Database;
 use websxz_accounts_backend::handler::oauth::{exchange_token, oauth};
+use websxz_accounts_backend::handler::profile::{edit, me};
 use std::env;
 use std::sync::Arc;
 use tracing_subscriber::fmt;
@@ -32,6 +33,8 @@ async fn main() {
         .route("/verify", get(verify))
         .route("/oauth", get(oauth))
         .route("/oauth/token", get(exchange_token))
+        .route("/me", get(me))
+        .route("/me/edit", put(edit))
         .with_state(Arc::new(AppState {
             db,
             redis: redis_client,

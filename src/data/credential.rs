@@ -14,7 +14,6 @@ use jsonwebtoken::errors::ErrorKind;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
-use std::fmt::Display;
 
 lazy_static! {
     static ref TOKEN_KEYS: Keys = {
@@ -24,16 +23,10 @@ lazy_static! {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Claims {
+pub struct Claims<const S: u16> {
     pub exp: usize,
     pub uid: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct OAuthClaims<const S: u16> {
-    pub exp: usize,
-    pub uid: u32,
-    pub scopes: Vec<Scope>,
+    pub scopes: Option<Vec<Scope>>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
@@ -44,45 +37,8 @@ pub enum Scope {
     ProfileWrite,
 }
 
-impl Display for Claims {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Uid: {}", self.uid)
-    }
-}
-
 #[async_trait]
-impl<S> FromRequestParts<S> for Claims
-where
-    S: Send + Sync,
-{
-    type Rejection = Error;
-
-    async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
-        // Extract the token from the authorization header
-        let TypedHeader(Authorization(bearer)) = parts
-            .extract::<TypedHeader<Authorization<Bearer>>>()
-            .await
-            .map_err(|e| {
-                tracing::debug!("{}", e);
-                Error::InvalidToken
-            })?;
-        // Decode the user data
-        let token_data =
-            decode::<Claims>(bearer.token(), &TOKEN_KEYS.decoding, &Validation::default())
-                .map_err(|e| {
-                    tracing::debug!("{}", e);
-                    match e.kind() {
-                        ErrorKind::ExpiredSignature => Error::ExpiredToken,
-                        _ => Error::InvalidToken,
-                    }
-                })?;
-
-        Ok(token_data.claims)
-    }
-}
-
-#[async_trait]
-impl<T, const S: u16> FromRequestParts<T> for OAuthClaims<S>
+impl<T, const S: u16> FromRequestParts<T> for Claims<S>
 where
     T: Send + Sync,
 {
@@ -99,7 +55,7 @@ where
             })?;
         // Decode the user data
         let token_data =
-            decode::<OAuthClaims<S>>(bearer.token(), &TOKEN_KEYS.decoding, &Validation::default())
+            decode::<Claims<S>>(bearer.token(), &TOKEN_KEYS.decoding, &Validation::default())
                 .map_err(|e| {
                     tracing::debug!("{}", e);
                     match e.kind() {
@@ -108,8 +64,10 @@ where
                     }
                 })?;
 
-        if S != S & scopes(token_data.claims.scopes.as_slice()) {
-            return Err(Error::MissingScope);
+        if let Some(s) = &token_data.claims.scopes {
+            if S != S & scopes(s.as_slice()) {
+                return Err(Error::MissingScope);
+            }
         }
 
         Ok(token_data.claims)
@@ -132,9 +90,10 @@ pub const fn scopes(s: &[Scope]) -> u16 {
 pub fn generate_token(uid: u32) -> Result<String, Error> {
     Ok(encode(
         &Header::default(),
-        &Claims {
+        &Claims::<0> {
             uid,
             exp: Utc::now().timestamp() as usize + 30 * 60,
+            scopes: None,
         },
         &TOKEN_KEYS.encoding,
     )
@@ -146,10 +105,10 @@ pub fn generate_token(uid: u32) -> Result<String, Error> {
 
 pub fn generate_oauth_token(uid: u32, s: Vec<Scope>) -> Result<String, Error> {
     Ok(
-        encode(&Header::default(), &OAuthClaims::<0>{
+        encode(&Header::default(), &Claims::<0>{
             uid,
             exp: Utc::now().timestamp() as usize + 30 * 60,
-            scopes: s
+            scopes: Some(s),
         }, &TOKEN_KEYS.encoding)
         .warn_err()?
     )
